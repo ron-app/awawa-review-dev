@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111318">
+<title>ポストレビュー</title>
+<style>
+:root{
+  --bg:#f7f8fa; --card:#ffffff; --line:#e3e6ec; --fg:#14171c; --muted:#5b6472;
+  --accent:#2563eb; --good:#15803d; --bad:#b91c1c; --quote:#f1f4f9; --mine:#fff7ed; --mine-line:#c2410c;
+  --shadow:0 1px 3px rgba(20,23,28,.08),0 8px 24px rgba(20,23,28,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f1116; --card:#171a21; --line:#2a2f3a; --fg:#e8ebf0; --muted:#9aa4b2;
+        --accent:#60a5fa; --good:#4ade80; --bad:#f87171; --quote:#1d212a; --mine:#241c12; --mine-line:#a16207;
+        --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);}
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  padding:0 0 env(safe-area-inset-bottom)}
+.wrap{max-width:720px;margin:0 auto;padding:10px 12px 150px}
+header{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 12px 6px;border-bottom:1px solid var(--line)}
+.hrow{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:10px;justify-content:space-between}
+.progress{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;max-width:720px;margin:6px auto 0}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.badge.kind{border-color:var(--accent);color:var(--accent)}
+.badge.has{border-color:var(--mine-line);color:var(--mine-line)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;box-shadow:var(--shadow)}
+.label{font-size:11px;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.src{background:var(--quote);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.src .who{font-size:13px;color:var(--muted);margin-bottom:4px;word-break:break-all}
+.src .txt{white-space:pre-wrap;word-break:break-word;font-size:14px}
+.draft{white-space:pre-wrap;word-break:break-word;font-size:16px;line-height:1.85}
+.mine{background:var(--mine);border:1px solid var(--mine-line);border-radius:10px;padding:10px 12px;margin-top:4px}
+.mine .draft{font-size:15px}
+.meta{font-size:12px;color:var(--muted);margin-top:8px;display:flex;gap:12px;flex-wrap:wrap}
+a{color:var(--accent)}
+.scores{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:30;box-shadow:0 -4px 20px rgba(0,0,0,.08)}
+.sgrid{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(11,1fr);gap:5px}
+.sgrid button{appearance:none;border:1px solid var(--line);background:var(--bg);color:var(--fg);
+  border-radius:9px;padding:12px 0;font-size:15px;font-weight:600;cursor:pointer;font-variant-numeric:tabular-nums;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.sgrid button:active{transform:scale(.94)}
+.sgrid button.lo{border-color:var(--bad);color:var(--bad)}
+.sgrid button.hi{border-color:var(--good);color:var(--good)}
+.sgrid button.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.row{max-width:720px;margin:8px auto 0;display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;min-height:44px;max-height:160px;resize:vertical;border:1px solid var(--line);background:var(--bg);
+  color:var(--fg);border-radius:10px;padding:10px 12px;font:inherit;font-size:15px}
+.btn{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:11px 14px;
+  font:inherit;font-weight:600;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+.hint{font-size:12px;color:var(--muted);margin:6px auto 0;max-width:720px}
+.empty{text-align:center;padding:48px 16px;color:var(--muted)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:190px;background:var(--fg);color:var(--bg);
+  padding:8px 16px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.on{opacity:.92}
+.statline{font-size:12px;color:var(--muted);margin-top:14px}
+.skel{height:14px;background:var(--line);border-radius:6px;margin:8px 0;animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.5}}
+[hidden]{display:none!important}
+nav{max-width:720px;margin:8px auto;display:flex;gap:6px;flex-wrap:wrap}
+nav button{flex:1;padding:10px 5px;min-height:44px}
+textarea{width:100%;min-width:0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.status{font-size:13px;color:var(--muted);max-width:720px;margin:6px auto;overflow-wrap:anywhere}
+.insight{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:520px){.sgrid{grid-template-columns:repeat(6,1fr)}.sgrid button{min-height:44px;padding:8px 0}.wrap{padding-bottom:235px}.hrow{flex-wrap:wrap}.toast{bottom:240px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div class="progress" id="prog">読み込み中</div>
+    <div class="badges" id="badges"></div>
+  </div>
+  <div class="bar"><i id="barfill"></i></div>
+  <nav aria-label="画面切替"><button class="btn" id="tab-score">採点</button><button class="btn" id="tab-insights">AIの推測を確認</button><button class="btn" id="tab-stats">振り返り</button><button class="btn" id="tab-access">スマホで開く</button></nav>
+  <div id="worker-status" class="status" role="status"></div>
+</header>
+
+<div class="wrap" id="main">
+  <div class="card"><div class="skel"></div><div class="skel" style="width:70%"></div><div class="skel" style="width:85%"></div></div>
+</div>
+
+<div class="scores" id="scorebar" hidden>
+  <div class="sgrid" id="sgrid"></div>
+  <div class="row">
+    <textarea id="note" placeholder="気になった点（任意）。空のままなら点数だけで次へ進みます"></textarea>
+    <button class="btn primary" id="send">送信</button>
+  </div>
+  <div class="hint" id="hint">点数をタップすると即保存して次へ。文章を書いたときは点数を選んでから「送信」。</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var cur = null, busy = false, picked = null, view = "score";
+
+function el(id){ return document.getElementById(id); }
+
+function esc(s){
+  var d = document.createElement("div");
+  d.textContent = (s === null || s === undefined) ? "" : String(s);
+  return d.innerHTML.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+function toast(msg){
+  var t = el("toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  setTimeout(function(){ t.classList.remove("on"); }, 1500);
+}
+
+function getToken(){
+  var v = new URLSearchParams(location.hash.slice(1)).get("k") || new URLSearchParams(location.search).get("k");
+  if(v){try{localStorage.setItem("reviewToken",v);}catch(e){} history.replaceState(null,"",location.pathname);return v;}
+  try{return localStorage.getItem("reviewToken")||"";}catch(e){return "";}
+}
+var TOKEN = getToken();
+var API_BASE = '', CONFIG_TIME = 0;
+var REMOTE_UI = location.hostname === 'ron-app.github.io';
+async function reviewFetch(path, options){
+  if(REMOTE_UI && (!API_BASE || Date.now()-CONFIG_TIME > 30000)){
+    var response = await fetch('connection.json?t='+Date.now(), {cache:'no-store'});
+    if(!response.ok)throw Error('接続先を取得できません。再読み込みしてください');
+    var config = await response.json();
+    if(!/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(config.api_base))throw Error('接続先が準備中です');
+    API_BASE=config.api_base;CONFIG_TIME=Date.now();
+  }
+  return fetch(API_BASE+path, options);
+}
+
+function buildScores(){
+  var g = el("sgrid");
+  g.innerHTML = "";
+  for (var i = 0; i <= 10; i++){
+    var b = document.createElement("button");
+    b.textContent = String(i);
+    b.className = i <= 3 ? "lo" : (i >= 8 ? "hi" : "");
+    b.setAttribute("data-v", String(i));
+    b.addEventListener("click", onScore);
+    g.appendChild(b);
+  }
+}
+
+function markSelected(v){
+  var all = el("sgrid").children;
+  for (var i = 0; i < all.length; i++){
+    var on = Number(all[i].getAttribute("data-v")) === v;
+    if (on){ all[i].classList.add("sel"); } else { all[i].classList.remove("sel"); }
+  }
+}
+
+function onScore(e){
+  var v = Number(e.currentTarget.getAttribute("data-v"));
+  var note = el("note").value.trim();
+  if (note){
+    picked = v;
+    markSelected(v);
+    toast("点数 " + v + " を選択。送信で保存");
+    return;
+  }
+  submit(v, "");
+}
+
+function submit(score, note){
+  if (view !== "score" || busy || !cur){ return; }
+  if (score === null || score === undefined){ toast("点数を選んでください"); return; }
+  busy = true;
+  el("send").disabled = true;
+  reviewFetch("/api/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ item_id: cur.id, score: score, note: note, token: TOKEN })
+  }).then(function(r){ return r.json(); }).then(function(res){
+    busy = false;
+    el("send").disabled = false;
+    if (res.error){ toast("保存に失敗: " + res.error); return; }
+    try{sessionStorage.removeItem("note-"+cur.id);}catch(e){}
+    el("note").value = "";
+    picked = null;
+    load();
+  }).catch(function(){
+    busy = false;
+    el("send").disabled = false;
+    toast("通信エラー");
+  });
+}
+
+function render(d){
+  if(view !== "score") return;
+  cur = d.item;
+  try{el("note").value = cur ? sessionStorage.getItem("note-"+cur.id)||"" : "";}catch(e){}
+  el("prog").textContent = d.done + " / " + d.total + " 件";
+  el("barfill").style.width = (d.total ? (d.done / d.total * 100) : 0) + "%";
+
+  if (!cur){
+    el("scorebar").hidden = true;
+    el("badges").innerHTML = "";
+    el("main").innerHTML = '<div class="empty"><p>未レビューはありません。おつかれさまでした。</p>'
+      + '<p class="statline">今日 ' + esc(d.today) + ' 件 / 累計 ' + esc(d.done) + ' 件</p></div>';
+    return;
+  }
+
+  var badges = '<span class="badge kind">' + esc(cur.kind_label) + "</span>";
+  if (cur.user_answer){ badges += '<span class="badge has">答えあり</span>'; }
+  if (cur.date){ badges += '<span class="badge">' + esc(cur.date) + "</span>"; }
+  el("badges").innerHTML = badges;
+
+  var h = "";
+  if (cur.source && (cur.source.text || cur.source.author)){
+    h += '<div class="card"><div class="label">引用元のポスト</div><div class="src">';
+    var who = "";
+    if (cur.source.author){ who += esc(cur.source.author); }
+    if (cur.source.handle){ who += " @" + esc(cur.source.handle); }
+    if (cur.source.post_id){ who += "  ID:" + esc(cur.source.post_id); }
+    h += '<div class="who">' + who + "</div>";
+    h += '<div class="txt">' + esc(cur.source.text) + "</div></div>";
+    if (/^https?:\/\//.test(cur.source.url)){
+      h += '<div class="meta"><a href="' + esc(cur.source.url) + '" target="_blank" rel="noopener">Xで開く</a></div>';
+    }
+    h += "</div>";
+  }
+
+  h += '<div class="card"><div class="label">AIの提案</div>';
+  h += '<div class="draft">' + esc(cur.ai_draft) + "</div>";
+  h += '<div class="meta"><span>' + esc(cur.ai_len) + "字</span>";
+  if (cur.origin){ h += "<span>" + esc(cur.origin) + "</span>"; }
+  h += "</div></div>";
+
+  if (cur.user_answer){
+    h += '<div class="card"><div class="label">本人が実際に出したポスト（答え）</div>';
+    h += '<div class="mine"><div class="draft">' + esc(cur.user_answer) + "</div></div>";
+    h += '<div class="meta">';
+    if (cur.user_answer_len){ h += "<span>" + esc(cur.user_answer_len) + "字</span>"; }
+    if (/^https?:\/\//.test(cur.user_answer_url)){
+      h += '<a href="' + esc(cur.user_answer_url) + '" target="_blank" rel="noopener">実投稿を開く</a>';
+    }
+    h += "</div></div>";
+  }
+
+  el("main").innerHTML = h;
+  el("scorebar").hidden = false;
+  markSelected(-1);
+  window.scrollTo(0, 0);
+}
+
+function load(){
+  cur=null; el("scorebar").hidden=true;
+  reviewFetch("/api/next", {headers:{'Authorization':'Bearer '+TOKEN}})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error){ el("main").innerHTML = '<div class="empty">' + esc(d.error) + "</div>"; return; }
+      render(d);
+    })
+    .catch(function(){
+      el("main").innerHTML = '<div class="empty">サーバーに接続できません</div>';
+    });
+}
+
+el("send").addEventListener("click", function(){
+  var note = el("note").value.trim();
+  if (picked === null){ toast("点数を選んでください"); return; }
+  submit(picked, note);
+});
+
+document.addEventListener("keydown", function(e){
+  if (e.target && ["TEXTAREA","INPUT"].includes(e.target.tagName)){ return; }
+  if (e.key >= "0" && e.key <= "9"){ submit(Number(e.key), el("note").value.trim()); }
+});
+
+function api(path, body){
+  return reviewFetch(path, {method:body?"POST":"GET", headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN}, body:body?JSON.stringify(body):undefined})
+  .then(async function(r){var d=await r.json();if(!r.ok)throw Error(d.error||"通信エラー");return d;});
+}
+function showError(e){toast(e.message||"通信エラー");}
+function switchView(next){
+  if(busy)return;
+  view=next;cur=null;el("scorebar").hidden=true;el("badges").innerHTML="";
+  if(next==="score")load();
+  if(next==="insights")loadInsights();
+  if(next==="stats")loadStats();
+  if(next==="access")loadAccess();
+}
+function loadInsights(){
+  api("/api/insights").then(function(d){
+    if(view!=="insights")return;
+    var h='<h2>AIの推測を確認</h2><p>点数から推測した理由です。「そうだね」を押した内容だけ次回の生成に反映します。</p>';
+    if(!d.insights.length)h+='<div class="card">確認待ちはありません。点数だけ付けた案は、自動で分析されます。</div>';
+    d.insights.forEach(function(r){
+      h+='<section class="card"><label><input type="checkbox" class="insight-select" value="'+r.id+'"> まとめて確認する対象に選ぶ</label><div class="meta">'+esc(r.origin)+' · '+r.score+'/10点</div><details><summary>引用元・AI案・本人の答え</summary><p class="insight">'+esc(r.source_text||'引用元なし')+'</p><p class="insight">AI案：'+esc(r.ai_draft)+'</p><p class="insight">本人の答え：'+esc(r.user_answer||'なし')+'</p></details><p class="insight">'+esc(r.guess)+'</p><div class="actions"><button class="btn primary" data-id="'+r.id+'" data-verdict="accepted">そうだね</button><button class="btn" data-id="'+r.id+'" data-verdict="rejected">違うね</button><span class="hint">保留はそのままでOK</span></div></section>';
+    });
+    if(d.insights.length)h+='<div class="actions"><button class="btn primary" id="accept-selected">選んだ提案にそうだね</button><button class="btn" id="reject-selected">選んだ提案に違うね</button></div>';
+    h+='<p><button class="btn" id="refresh-insights">更新</button></p>';
+    el("main").innerHTML=h;
+    document.querySelectorAll('[data-verdict]').forEach(function(b){b.onclick=function(){decide([Number(b.dataset.id)],b.dataset.verdict);};});
+    ['accept','reject'].forEach(function(v){var b=el(v+'-selected');if(b)b.onclick=function(){var ids=Array.from(document.querySelectorAll('.insight-select:checked')).map(x=>Number(x.value));if(!ids.length){toast('提案を選んでください');return;}decide(ids,v==='accept'?'accepted':'rejected');};});
+    el('refresh-insights').onclick=loadInsights;
+  }).catch(showError);
+}
+function decide(ids, verdict){
+  if(busy)return;busy=true;
+  api('/api/decide',{ids:ids,verdict:verdict}).then(function(){toast(verdict==='accepted'?'承認しました。学習へ反映します':'却下しました');loadInsights();pollStatus();}).catch(showError).finally(function(){busy=false;});
+}
+function loadStats(){
+  api('/api/stats').then(function(d){
+    if(view!=='stats')return;
+    var h='<h2>振り返り</h2><p>今日 '+d.today+'件 · 合計 '+d.done+'件 · 確認待ち '+d.pending_insights+'件</p><section class="card"><h3>点数の分布</h3>';
+    d.by_score.forEach(function(r){h+='<div>'+r.score+'点：'+r.n+'件</div>';});
+    if(!d.by_score.length)h+='<p>採点するとここに表示されます。</p>';
+    h+='</section><section class="card"><h3>種類別・日別</h3>';
+    d.by_kind.forEach(r=>h+='<div>'+esc(r.kind==='quote'?'引用':'自作')+'：平均'+r.average+'点（'+r.n+'件）</div>');
+    d.by_day.forEach(r=>h+='<div>'+esc(r.day)+'：平均'+r.average+'点（'+r.n+'件）</div>');
+    h+='</section><section class="card"><h3>低評価の案と理由</h3>';
+    d.low_reviews.forEach(r=>h+='<p>'+r.score+'点 · '+esc(r.origin)+'<br>'+esc(r.note||(r.status==='rejected'?'AIの推測は却下済み':(r.status==='accepted'?'確認済み：':'AIの推測（未確認）：')+(r.guess||'分析待ち')))+'</p>');
+    h+='</section>';el('main').innerHTML=h;
+  }).catch(showError);
+}
+function loadAccess(){
+  api('/api/access').then(function(d){
+    if(view!=='access')return;
+    var h='<h2>スマホで開く</h2><p>下の専用URLをスマホで開いてください。最初に開いた後はアクセスキーが保存されます。</p>';
+    if(d.url && /^https:\/\//.test(d.url)){
+      var url=d.url+'/#k='+encodeURIComponent(TOKEN);
+      h+='<div class="card"><a style="overflow-wrap:anywhere" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">外出先でも使える専用URL</a><textarea id="access-url" readonly aria-label="スマホ用URL">'+esc(url)+'</textarea><button class="btn primary" id="copy-access">URLをコピー</button><p>PCの再起動などでURLが変わった場合は、この画面で新しいURLを取得できます。</p></div>';
+    }else h+='<div class="card">外出先用URL：'+esc(d.state||'準備中')+'。しばらくしてから開き直してください。</div>';
+    el('main').innerHTML=h;
+    if(el('copy-access'))el('copy-access').onclick=async function(){try{await navigator.clipboard.writeText(el('access-url').value);toast('コピーしました');}catch(e){el('access-url').select();toast('URLを選択しました。コピーしてください');}};
+  }).catch(showError);
+}
+function pollStatus(){
+  if(!TOKEN)return;
+  api('/api/status').then(function(s){
+    el('worker-status').textContent=(s.waiting_analysis||s.waiting_apply||s.error)?('分析待ち '+s.waiting_analysis+'件 · 反映待ち '+s.waiting_apply+'件 · '+s.phase+(s.error?'：'+s.error:'')):'保存したコメントと承認した推測は、次回の生成に反映されます。';
+  }).catch(function(){el('worker-status').textContent='接続できません。保存前のコメントはこのタブに残っています。';});
+}
+el('note').addEventListener('input',function(){if(cur)try{sessionStorage.setItem('note-'+cur.id,el('note').value);}catch(e){}});
+['score','insights','stats','access'].forEach(function(v){el('tab-'+v).onclick=function(){switchView(v);};});
+buildScores();
+if(TOKEN){load();pollStatus();setInterval(pollStatus,10000);}else{
+  el('main').innerHTML='<div class="card"><h2>アクセスキーを入力</h2><p>専用URLから開くか、アクセスキーを入力してください。</p><input id="login-key" type="password" autocomplete="current-password" aria-label="アクセスキー"><button class="btn primary" id="login">開く</button></div>';
+  el('login').onclick=function(){TOKEN=el('login-key').value.trim();if(!TOKEN)return;try{localStorage.setItem('reviewToken',TOKEN);}catch(e){}load();pollStatus();};
+}
+</script>
+<p style="text-align:center;color:#888;font-size:12px">開発版 c96cbf686f</p></body>
+</html>

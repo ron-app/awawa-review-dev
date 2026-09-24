@@ -20,7 +20,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+body{background:var(--bg);color:var(--fg);font:14px/1.65 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
   padding:0 0 env(safe-area-inset-bottom)}
 .wrap{max-width:720px;margin:0 auto;padding:10px 12px 150px}
 header{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 12px 6px;border-bottom:1px solid var(--line)}
@@ -36,8 +36,8 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 12px 6p
 .label{font-size:11px;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
 .src{background:var(--quote);border-radius:10px;padding:10px 12px;margin-bottom:10px}
 .src .who{font-size:13px;color:var(--muted);margin-bottom:4px;word-break:break-all}
-.src .txt{white-space:pre-wrap;word-break:break-word;font-size:14px}
-.draft{white-space:pre-wrap;word-break:break-word;font-size:16px;line-height:1.85}
+.src .txt{white-space:pre-wrap;word-break:break-word;font-size:13px}
+.draft{white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.75}
 .mine{background:var(--mine);border:1px solid var(--mine-line);border-radius:10px;padding:10px 12px;margin-top:4px}
 .mine .draft{font-size:15px}
 .meta{font-size:12px;color:var(--muted);margin-top:8px;display:flex;gap:12px;flex-wrap:wrap}
@@ -67,9 +67,34 @@ textarea{flex:1;min-height:44px;max-height:160px;resize:vertical;border:1px soli
 .statline{font-size:12px;color:var(--muted);margin-top:14px}
 .skel{height:14px;background:var(--line);border-radius:6px;margin:8px 0;animation:p 1.2s infinite}
 @keyframes p{50%{opacity:.5}}
+.av{width:28px;height:28px;border-radius:50%;flex:none;object-fit:cover;background:var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted)}
+.who{display:flex;align-items:center;gap:8px}
+.who .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.filters{display:flex;gap:6px;margin:4px 0 8px}
+.filters button{flex:none;padding:6px 12px;min-height:34px;font-size:13px}
+.filters button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;font-size:13px;line-height:1.6}
+.li.saved{opacity:.55}
+.li .head{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.li .head .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li .head b{color:var(--fg);font-weight:600}
+.li .q{background:var(--quote);border-radius:8px;padding:6px 8px;margin:6px 0;white-space:pre-wrap;word-break:break-word;font-size:12px;color:var(--muted);
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.li .q.open{display:block}
+.li .tag{font-size:10px;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.li .d{white-space:pre-wrap;word-break:break-word}
+.li .ans{background:var(--mine);border-left:3px solid var(--mine-line);border-radius:6px;padding:6px 8px;margin-top:4px;white-space:pre-wrap;word-break:break-word;font-size:12px}
+.li .ls{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:8px}
+.li .ls button{appearance:none;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:7px;padding:0;min-height:34px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.li .ls button.lo{color:var(--bad)} .li .ls button.hi{color:var(--good)}
+.li .ls button.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.li .foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted)}
+.li .foot button{border:0;background:none;color:var(--accent);font:inherit;padding:4px 0}
+.li textarea{margin-top:6px;font-size:13px;min-height:38px;padding:6px 8px}
+.li .result{font-weight:700;color:var(--accent)}
 [hidden]{display:none!important}
 nav{max-width:720px;margin:8px auto;display:flex;gap:6px;flex-wrap:wrap}
-nav button{flex:1;padding:10px 5px;min-height:44px}
+nav button{flex:1;padding:8px 4px;min-height:38px;font-size:12px}
 textarea{width:100%;min-width:0}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .status{font-size:13px;color:var(--muted);max-width:720px;margin:6px auto;overflow-wrap:anywhere}
@@ -84,7 +109,7 @@ textarea{width:100%;min-width:0}
     <div class="badges" id="badges"></div>
   </div>
   <div class="bar"><i id="barfill"></i></div>
-  <nav aria-label="画面切替"><button class="btn" id="tab-score">採点</button><button class="btn" id="tab-insights">AIの推測を確認</button><button class="btn" id="tab-stats">振り返り</button><button class="btn" id="tab-access">スマホで開く</button></nav>
+  <nav aria-label="画面切替"><button class="btn" id="tab-list">一覧</button><button class="btn" id="tab-score">1件ずつ</button><button class="btn" id="tab-insights">AIの推測を確認</button><button class="btn" id="tab-stats">振り返り</button><button class="btn" id="tab-access">スマホで開く</button></nav>
   <div id="worker-status" class="status" role="status"></div>
 </header>
 
@@ -104,7 +129,7 @@ textarea{width:100%;min-width:0}
 <div class="toast" id="toast"></div>
 
 <script>
-var cur = null, busy = false, picked = null, view = "score";
+var cur = null, busy = false, picked = null, view = "list";
 
 function el(id){ return document.getElementById(id); }
 
@@ -220,11 +245,7 @@ function render(d){
   var h = "";
   if (cur.source && (cur.source.text || cur.source.author)){
     h += '<div class="card"><div class="label">引用元のポスト</div><div class="src">';
-    var who = "";
-    if (cur.source.author){ who += esc(cur.source.author); }
-    if (cur.source.handle){ who += " @" + esc(cur.source.handle); }
-    if (cur.source.post_id){ who += "  ID:" + esc(cur.source.post_id); }
-    h += '<div class="who">' + who + "</div>";
+    h += '<div class="who">' + avatarHtml(cur.source) + '<span class="nm">' + whoText(cur.source) + "</span></div>";
     h += '<div class="txt">' + esc(cur.source.text) + "</div></div>";
     if (/^https?:\/\//.test(cur.source.url)){
       h += '<div class="meta"><a href="' + esc(cur.source.url) + '" target="_blank" rel="noopener">Xで開く</a></div>';
@@ -284,9 +305,71 @@ function api(path, body){
   .then(async function(r){var d=await r.json();if(!r.ok)throw Error(d.error||"通信エラー");return d;});
 }
 function showError(e){toast(e.message||"通信エラー");}
+function whoText(src){
+  var t = src.name ? '<b>' + esc(src.name) + '</b> ' : (src.author ? esc(src.author) + ' ' : '');
+  return t + (src.handle ? '@' + esc(src.handle) : '');
+}
+function avatarHtml(src){
+  var ch = esc(((src.name || src.author || src.handle || '?').trim()[0]) || '?');
+  if (/^https:\/\/pbs\.twimg\.com\//.test(src.avatar||'')){
+    return '<img class="av" alt="" loading="lazy" referrerpolicy="no-referrer" src="' + esc(src.avatar) + '" onerror="this.outerHTML=\'<span class=av>' + ch + '</span>\'">';
+  }
+  return '<span class="av">' + ch + '</span>';
+}
+var listFilter = "todo";
+function loadList(){
+  api("/api/list?filter=" + listFilter).then(function(d){
+    if(view!=="list")return;
+    el("prog").textContent = d.done + " / " + d.total + " 件";
+    el("barfill").style.width = (d.total ? (d.done / d.total * 100) : 0) + "%";
+    var h = '<div class="filters"><button class="btn' + (listFilter==="todo"?' on':'') + '" data-f="todo">未採点</button><button class="btn' + (listFilter==="done"?' on':'') + '" data-f="done">採点済み</button></div>';
+    if(!d.items.length) h += '<div class="empty">' + (listFilter==="todo" ? "未採点はありません" : "まだ採点していません") + '</div>';
+    d.items.forEach(function(it){
+      h += '<article class="li" id="li-' + it.id + '"><div class="head">';
+      if(it.kind==="quote") h += avatarHtml(it.source) + '<span class="nm">' + whoText(it.source) + '</span>';
+      else h += '<span class="nm"><b>自作ポスト</b></span>';
+      h += '<span>' + esc(it.date) + '</span></div>';
+      if(it.kind==="quote" && it.source.text) h += '<div class="q">' + esc(it.source.text) + '</div>';
+      h += '<div class="tag">AI案 · ' + esc(it.ai_len) + '字</div><div class="d">' + esc(it.ai_draft) + '</div>';
+      if(it.user_answer) h += '<div class="tag">本人の答え</div><div class="ans">' + esc(it.user_answer) + '</div>';
+      if(it.score === null || it.score === undefined){
+        h += '<div class="ls">';
+        for(var i=0;i<=10;i++) h += '<button data-id="' + it.id + '" data-v="' + i + '" class="' + (i<=3?'lo':(i>=8?'hi':'')) + '">' + i + '</button>';
+        h += '</div><textarea hidden placeholder="気になった点（任意）。入力後に点数をタップで保存"></textarea>';
+        h += '<div class="foot"><button data-note="' + it.id + '">コメントを付ける</button>';
+      } else {
+        h += '<div class="foot"><span class="result">' + esc(it.score) + '点</span>' + (it.note ? '<span>' + esc(it.note) + '</span>' : '');
+      }
+      if(/^https?:\/\//.test(it.source.url)) h += '<a href="' + esc(it.source.url) + '" target="_blank" rel="noopener">Xで開く</a>';
+      h += '</div></article>';
+    });
+    el("main").innerHTML = h;
+    document.querySelectorAll('[data-f]').forEach(function(b){ b.onclick = function(){ listFilter = b.dataset.f; loadList(); }; });
+    document.querySelectorAll('.li .q').forEach(function(q){ q.onclick = function(){ q.classList.toggle('open'); }; });
+    document.querySelectorAll('[data-note]').forEach(function(b){ b.onclick = function(){
+      var t = el('li-' + b.dataset.note).querySelector('textarea'); t.hidden = !t.hidden; if(!t.hidden) t.focus(); }; });
+    document.querySelectorAll('.li .ls button').forEach(function(b){ b.onclick = function(){ listScore(b); }; });
+  }).catch(showError);
+}
+function listScore(b){
+  if(busy)return;
+  var card = el('li-' + b.dataset.id), score = Number(b.dataset.v);
+  var t = card.querySelector('textarea'), note = t ? t.value.trim() : '';
+  busy = true;
+  api('/api/review', {item_id: Number(b.dataset.id), score: score, note: note, token: TOKEN}).then(function(){
+    card.querySelectorAll('.ls button').forEach(function(x){ x.disabled = true; x.classList.toggle('sel', x === b); });
+    card.classList.add('saved');
+    var f = card.querySelector('.foot [data-note]'); if(f) f.outerHTML = '<span class="result">' + score + '点 保存</span>';
+    if(t) t.hidden = true;
+    var p = el('prog').textContent.match(/^(\d+) \/ (\d+)/);
+    if(p){ var n = Number(p[1]) + 1; el('prog').textContent = n + ' / ' + p[2] + ' 件'; el('barfill').style.width = (n / Number(p[2]) * 100) + '%'; }
+  }).catch(showError).finally(function(){ busy = false; });
+}
+
 function switchView(next){
   if(busy)return;
   view=next;cur=null;el("scorebar").hidden=true;el("badges").innerHTML="";
+  if(next==="list")loadList();
   if(next==="score")load();
   if(next==="insights")loadInsights();
   if(next==="stats")loadStats();
@@ -345,12 +428,12 @@ function pollStatus(){
   }).catch(function(){el('worker-status').textContent='接続できません。保存前のコメントはこのタブに残っています。';});
 }
 el('note').addEventListener('input',function(){if(cur)try{sessionStorage.setItem('note-'+cur.id,el('note').value);}catch(e){}});
-['score','insights','stats','access'].forEach(function(v){el('tab-'+v).onclick=function(){switchView(v);};});
+['list','score','insights','stats','access'].forEach(function(v){el('tab-'+v).onclick=function(){switchView(v);};});
 buildScores();
-if(TOKEN){load();pollStatus();setInterval(pollStatus,10000);}else{
+if(TOKEN){loadList();pollStatus();setInterval(pollStatus,10000);}else{
   el('main').innerHTML='<div class="card"><h2>アクセスキーを入力</h2><p>専用URLから開くか、アクセスキーを入力してください。</p><input id="login-key" type="password" autocomplete="current-password" aria-label="アクセスキー"><button class="btn primary" id="login">開く</button></div>';
-  el('login').onclick=function(){TOKEN=el('login-key').value.trim();if(!TOKEN)return;try{localStorage.setItem('reviewToken',TOKEN);}catch(e){}load();pollStatus();};
+  el('login').onclick=function(){TOKEN=el('login-key').value.trim();if(!TOKEN)return;try{localStorage.setItem('reviewToken',TOKEN);}catch(e){}loadList();pollStatus();};
 }
 </script>
-<p style="text-align:center;color:#888;font-size:12px">開発版 7a13fa2aa8</p></body>
+<p style="text-align:center;color:#888;font-size:12px">開発版 9b29e0a3f9</p></body>
 </html>

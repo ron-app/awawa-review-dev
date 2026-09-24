@@ -26,7 +26,7 @@ body{background:var(--bg);color:var(--fg);font:14px/1.65 -apple-system,BlinkMacS
 header{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 12px 6px;border-bottom:1px solid var(--line)}
 .hrow{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:10px;justify-content:space-between}
 .progress{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;max-width:720px;margin:6px auto 0}
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;max-width:720px;margin:4px auto 0}
 .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
 .badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .badge{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
@@ -82,7 +82,8 @@ textarea{flex:1;min-height:44px;max-height:160px;resize:vertical;border:1px soli
   display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
 .li .q.open{display:block}
 .li .tag{font-size:10px;letter-spacing:.06em;color:var(--muted);margin-top:4px}
-.li .d{white-space:pre-wrap;word-break:break-word}
+.li .d{white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.li .d.open{display:block}
 .li .ans{background:var(--mine);border-left:3px solid var(--mine-line);border-radius:6px;padding:6px 8px;margin-top:4px;white-space:pre-wrap;word-break:break-word;font-size:12px}
 .li .ls{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:8px}
 .li .ls button{appearance:none;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:7px;padding:0;min-height:34px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -94,10 +95,13 @@ textarea{flex:1;min-height:44px;max-height:160px;resize:vertical;border:1px soli
 .li .result{font-weight:700;color:var(--accent)}
 [hidden]{display:none!important}
 nav{max-width:720px;margin:8px auto;display:flex;gap:6px;flex-wrap:wrap}
-nav button{flex:1;padding:8px 4px;min-height:38px;font-size:12px}
+nav{flex-wrap:nowrap;overflow-x:auto;margin:6px auto 2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:1 0 auto;padding:6px 10px;min-height:34px;font-size:12px}
+nav button.on{background:var(--accent);border-color:var(--accent);color:#fff}
 textarea{width:100%;min-width:0}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.status{font-size:13px;color:var(--muted);max-width:720px;margin:6px auto;overflow-wrap:anywhere}
+.status{font-size:11px;color:var(--muted);max-width:720px;margin:2px auto 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .insight{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:520px){.sgrid{grid-template-columns:repeat(6,1fr)}.sgrid button{min-height:44px;padding:8px 0}.wrap{padding-bottom:235px}.hrow{flex-wrap:wrap}.toast{bottom:240px}}
 </style>
@@ -109,7 +113,7 @@ textarea{width:100%;min-width:0}
     <div class="badges" id="badges"></div>
   </div>
   <div class="bar"><i id="barfill"></i></div>
-  <nav aria-label="画面切替"><button class="btn" id="tab-list">一覧</button><button class="btn" id="tab-score">1件ずつ</button><button class="btn" id="tab-insights">AIの推測を確認</button><button class="btn" id="tab-stats">振り返り</button><button class="btn" id="tab-access">スマホで開く</button></nav>
+  <nav aria-label="画面切替"><button class="btn" id="tab-list">一覧</button><button class="btn" id="tab-score">1件ずつ</button><button class="btn" id="tab-insights">推測確認</button><button class="btn" id="tab-stats">振り返り</button><button class="btn" id="tab-access">リンク</button></nav>
   <div id="worker-status" class="status" role="status"></div>
 </header>
 
@@ -345,7 +349,7 @@ function loadList(){
     });
     el("main").innerHTML = h;
     document.querySelectorAll('[data-f]').forEach(function(b){ b.onclick = function(){ listFilter = b.dataset.f; loadList(); }; });
-    document.querySelectorAll('.li .q').forEach(function(q){ q.onclick = function(){ q.classList.toggle('open'); }; });
+    document.querySelectorAll('.li .q, .li .d').forEach(function(q){ q.onclick = function(){ q.classList.toggle('open'); }; });
     document.querySelectorAll('[data-note]').forEach(function(b){ b.onclick = function(){
       var t = el('li-' + b.dataset.note).querySelector('textarea'); t.hidden = !t.hidden; if(!t.hidden) t.focus(); }; });
     document.querySelectorAll('.li .ls button').forEach(function(b){ b.onclick = function(){ listScore(b); }; });
@@ -368,7 +372,7 @@ function listScore(b){
 
 function switchView(next){
   if(busy)return;
-  view=next;cur=null;el("scorebar").hidden=true;el("badges").innerHTML="";
+  view=next;cur=null;['list','score','insights','stats','access'].forEach(function(v){el('tab-'+v).classList.toggle('on',v===next);});el("scorebar").hidden=true;el("badges").innerHTML="";
   if(next==="list")loadList();
   if(next==="score")load();
   if(next==="insights")loadInsights();
@@ -430,10 +434,11 @@ function pollStatus(){
 el('note').addEventListener('input',function(){if(cur)try{sessionStorage.setItem('note-'+cur.id,el('note').value);}catch(e){}});
 ['list','score','insights','stats','access'].forEach(function(v){el('tab-'+v).onclick=function(){switchView(v);};});
 buildScores();
+el('tab-list').classList.add('on');
 if(TOKEN){loadList();pollStatus();setInterval(pollStatus,10000);}else{
   el('main').innerHTML='<div class="card"><h2>アクセスキーを入力</h2><p>専用URLから開くか、アクセスキーを入力してください。</p><input id="login-key" type="password" autocomplete="current-password" aria-label="アクセスキー"><button class="btn primary" id="login">開く</button></div>';
   el('login').onclick=function(){TOKEN=el('login-key').value.trim();if(!TOKEN)return;try{localStorage.setItem('reviewToken',TOKEN);}catch(e){}loadList();pollStatus();};
 }
 </script>
-<p style="text-align:center;color:#888;font-size:12px">開発版 9b29e0a3f9</p></body>
+<p style="text-align:center;color:#888;font-size:12px">開発版 9e3a4c15a0</p></body>
 </html>

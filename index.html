@@ -90,6 +90,7 @@ textarea{flex:1;min-height:44px;max-height:160px;resize:vertical;border:1px soli
 .li .foot button{border:0;background:none;color:var(--accent);font:inherit;padding:4px 0}
 .li textarea{margin-top:6px;font-size:13px;min-height:38px;padding:6px 8px}
 .li .result{font-weight:700;color:var(--accent)}
+.rx{display:flex;gap:12px;font-size:11px;color:var(--muted);margin:2px 0 4px;font-variant-numeric:tabular-nums}
 [hidden]{display:none!important}
 nav{max-width:720px;margin:8px auto;display:flex;gap:6px;flex-wrap:wrap}
 nav{flex-wrap:nowrap;overflow-x:auto;margin:6px auto 2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -247,7 +248,7 @@ function render(d){
   if (cur.source && (cur.source.text || cur.source.author)){
     h += '<div class="card"><div class="label">引用元のポスト</div><div class="src">';
     h += '<div class="who">' + avatarHtml(cur.source) + '<span class="nm">' + whoText(cur.source) + "</span></div>";
-    h += '<div class="txt">' + esc(cur.source.text) + "</div></div>";
+    h += '<div class="txt">' + esc(cur.source.text) + "</div></div>" + statsHtml(cur.source.stats);
     if (/^https?:\/\//.test(cur.source.url)){
       h += '<div class="meta"><a href="' + esc(cur.source.url) + '" target="_blank" rel="noopener">Xで開く</a></div>';
     }
@@ -262,7 +263,7 @@ function render(d){
 
   if (cur.user_answer){
     h += '<div class="card"><div class="label">本人が実際に出したポスト（答え）</div>';
-    h += '<div class="mine"><div class="draft">' + esc(cur.user_answer) + "</div></div>";
+    h += '<div class="mine"><div class="draft">' + esc(cur.user_answer) + "</div></div>" + statsHtml(cur.user_answer_stats);
     h += '<div class="meta">';
     if (cur.user_answer_len){ h += "<span>" + esc(cur.user_answer_len) + "字</span>"; }
     if (/^https?:\/\//.test(cur.user_answer_url)){
@@ -306,6 +307,11 @@ function api(path, body){
   .then(async function(r){var d=await r.json();if(!r.ok)throw Error(d.error||"通信エラー");return d;});
 }
 function showError(e){toast(e.message||"通信エラー");}
+function num(n){ return n >= 10000 ? (Math.round(n / 1000) / 10) + '万' : String(n); }
+function statsHtml(st){
+  if(!st) return '';
+  return '<div class="rx"><span>いいね ' + num(st.likes) + '</span><span>RT ' + num(st.retweets) + '</span><span>返信 ' + num(st.replies) + '</span>' + (st.views ? '<span>表示 ' + num(st.views) + '</span>' : '') + '</div>';
+}
 function whoText(src){
   var t = src.name ? '<b>' + esc(src.name) + '</b> ' : (src.author ? esc(src.author) + ' ' : '');
   return t + (src.handle ? '@' + esc(src.handle) : '');
@@ -330,9 +336,9 @@ function loadList(){
       if(it.kind==="quote") h += avatarHtml(it.source) + '<span class="nm">' + whoText(it.source) + '</span>';
       else h += '<span class="nm"><b>自作ポスト</b></span>';
       h += '<span>' + esc(it.date) + '</span></div>';
-      if(it.kind==="quote" && it.source.text) h += '<div class="q">' + esc(it.source.text) + '</div>';
+      if(it.kind==="quote" && it.source.text) h += '<div class="q">' + esc(it.source.text) + '</div>' + statsHtml(it.source.stats);
       h += '<div class="tag">AI案 · ' + esc(it.ai_len) + '字</div><div class="d">' + esc(it.ai_draft) + '</div>';
-      if(it.user_answer) h += '<div class="tag">本人の答え</div><div class="ans">' + esc(it.user_answer) + '</div>';
+      if(it.user_answer) h += '<div class="tag">本人の答え</div><div class="ans">' + esc(it.user_answer) + '</div>' + statsHtml(it.user_answer_stats);
       if(it.score === null || it.score === undefined){
         h += '<div class="ls">';
         for(var i=0;i<=10;i++) h += '<button data-id="' + it.id + '" data-v="' + i + '" class="' + (i<=3?'lo':(i>=8?'hi':'')) + '">' + i + '</button>';
@@ -436,5 +442,5 @@ if(TOKEN){loadList();pollStatus();setInterval(pollStatus,10000);}else{
   el('login').onclick=function(){TOKEN=el('login-key').value.trim();if(!TOKEN)return;try{localStorage.setItem('reviewToken',TOKEN);}catch(e){}loadList();pollStatus();};
 }
 </script>
-<p style="text-align:center;color:#888;font-size:12px">開発版 5123aca2d5</p></body>
+<p style="text-align:center;color:#888;font-size:12px">開発版 9a3d875fd1</p></body>
 </html>

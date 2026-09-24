@@ -331,7 +331,7 @@ function loadAccess(){
     if(view!=='access')return;
     var h='<h2>スマホで開く</h2><p>下の専用URLをスマホで開いてください。最初に開いた後はアクセスキーが保存されます。</p>';
     if(d.url && /^https:\/\//.test(d.url)){
-      var url=d.url+'/#k='+encodeURIComponent(TOKEN);
+      var url='https://ron-app.github.io/awawa-review-dev/#k='+encodeURIComponent(TOKEN);
       h+='<div class="card"><a style="overflow-wrap:anywhere" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">外出先でも使える専用URL</a><textarea id="access-url" readonly aria-label="スマホ用URL">'+esc(url)+'</textarea><button class="btn primary" id="copy-access">URLをコピー</button><p>PCの再起動などでURLが変わった場合は、この画面で新しいURLを取得できます。</p></div>';
     }else h+='<div class="card">外出先用URL：'+esc(d.state||'準備中')+'。しばらくしてから開き直してください。</div>';
     el('main').innerHTML=h;
@@ -352,5 +352,5 @@ if(TOKEN){load();pollStatus();setInterval(pollStatus,10000);}else{
   el('login').onclick=function(){TOKEN=el('login-key').value.trim();if(!TOKEN)return;try{localStorage.setItem('reviewToken',TOKEN);}catch(e){}load();pollStatus();};
 }
 </script>
-<p style="text-align:center;color:#888;font-size:12px">開発版 c96cbf686f</p></body>
+<p style="text-align:center;color:#888;font-size:12px">開発版 43c0fd6d82</p></body>
 </html>
